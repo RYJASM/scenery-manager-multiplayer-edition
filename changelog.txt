@@ -1,0 +1,131 @@
+2.0.9-1.5.1 (2026-03-23) - Multiplayer Edition
+------------------------------------------------------------------------
+- Feature: Multiplayer support with server-safe item placement and removal.
+- Feature: Configurable placement delay (ms) to stay within server action rate limits.
+- Feature: Placement order patterns (Default, Radial, Spiral, Random) for visual animations.
+- Feature: Action history window with full undo/redo support (up to 20 operations).
+- Feature: X/Y half-tile offset when pasting quarter-tile small scenery objects.
+- Feature: Load objects from saved templates into the current scenario.
+- Feature: Import saved templates from the original Scenery Manager plugin.
+- Fix: Colors on picked items in the find and replace tool now copy correctly.
+
+2.0.9 (2026-02-17)
+------------------------------------------------------------------------
+- Fix: [#44] Correctly set occupied quadrants in raw mode.
+- Fix: [#45] Search/replace now replaces footpath additions.
+- Fix: [#53] Adjust footpath place args to changes in API.
+
+2.0.8 (2025-09-13)
+------------------------------------------------------------------------
+- Feature: Add option to replace with random colours.
+
+2.0.7 (2025-04-20)
+------------------------------------------------------------------------
+- Improved: Removed noticeable lag during loading of scenario.
+- Fix: [#50] Items placed in "construction rights" areas are not counted as being in the park.
+
+2.0.6 (2024-12-18)
+------------------------------------------------------------------------
+- Improved: Some issues with pasting surface fixed.
+
+2.0.5 (2023-09-26)
+------------------------------------------------------------------------
+- Feature: [#41] Tertiary colours for small scenery.
+
+2.0.4 (2023-07-05)
+------------------------------------------------------------------------
+- Improved: Handling of objects that are loaded twice.
+- Fix: Delete / replace message now displays the correct number of elements.
+
+2.0.3 (2023-07-05)
+------------------------------------------------------------------------
+- Fix: [#39] New track elements now copy and mirror properly.
+- Fix: Eighth turns now mirror properly.
+
+2.0.2 (2023-06-24)
+------------------------------------------------------------------------
+- Fix: [#38] Footpath addition object is off by one.
+- Fix: Ensure order of footpath and addition placement.
+
+2.0.1 (2022-07-03)
+------------------------------------------------------------------------
+- Feature: Tertiary colours for large scenery.
+- Fix: [#31] Search in object list does not terminate.
+
+2.0.0 (2022-03-18)
+------------------------------------------------------------------------
+- Feature: Raw place mode.
+- Feature: [#17] Restrict pasting vertically.
+- Feature: [#18] Height offset in scatter tool.
+- Feature: [#19] Copy & paste surface / terrain.
+- Feature: [#24][#25] NSF (.park) support.
+- Feature: Object index, jump to instance of object.
+- Feature: Search and replace scenery and footpaths.
+- Feature: Multi-select area.
+
+1.2.1 (2021-04-01)
+------------------------------------------------------------------------
+- Fix: [#22] Library does not work.
+- Feature: Height offset shortcut keys.
+
+1.2.0 (2021-03-28)
+------------------------------------------------------------------------
+- Feature: [#2] Hotkey support.
+- Feature: [#12] Toggle area selection tool and placing scenery cursor.
+- Feature: [#16] Cut (copy and remove) templates.
+- Improvement: Complete overhaul of the main window.
+- Improvement: Complete overhaul of the file dialogs.
+- Fix: [#20] Brush tool controls bugged.
+
+1.1.7 (2021-02-05)
+------------------------------------------------------------------------
+- Feature: Scatter tool for random scenery placement.
+- Fix: Square brush now correctly implemented.
+
+1.1.6 (2021-02-02)
+------------------------------------------------------------------------
+- Feature: Adjustment of height and rotation of templates via mouse.
+
+1.1.5 (2021-02-02)
+------------------------------------------------------------------------
+- Feature: Footpath addition brush for benches, litter bins, etc.
+- Removed: "Absolute Height" option for pasting.
+- Updated: Copyright 2020-2021.
+- Fix: [#10] "Error on missing element" option now working as intended.
+- Fix: [#11][#14] Removed deprecated raw data access of the plug-in API.
+
+1.1.4 (2021-01-02)
+------------------------------------------------------------------------
+- Fix: Rotating a template with missing elements results in a crash.
+- Fix: [#5] Ghost objects form when dragging a template over water.
+
+1.1.3 (2021-01-02)
+------------------------------------------------------------------------
+- Fix: Updater can now correctly handle v1.0.0.
+
+1.1.2 (2020-12-24)
+------------------------------------------------------------------------
+- Fix: Copying wrong data of large scenery prevents pasting.
+
+1.1.1 (2020-12-23)
+------------------------------------------------------------------------
+- Feature: Add configuration: behaviour if element unavailable
+
+1.1.0 (2020-12-20)
+------------------------------------------------------------------------
+- Feature: [BETA] Trackitecture support.
+- Fix: [#6] Bad error when running under headless.
+
+1.0.1 (2020-12-04)
+------------------------------------------------------------------------
+- Fix: [#1] Plug-in is not working with custom scenery.
+
+1.0.0 (2020-12-04)
+------------------------------------------------------------------------
+- Feature: Copy and paste chunks of scenery as template.
+- Feature: Filter scenery by type on copy or paste.
+- Feature: Rotate and mirror scenery template on paste.
+- Feature: Adjust height of scenery template on paste.
+- Feature: Store copied scenery templates in clipboard.
+- Feature: Rename and delete saved scenery templates.
+- Feature: Save and manage scenery templates in a file-system-like persistent library.
