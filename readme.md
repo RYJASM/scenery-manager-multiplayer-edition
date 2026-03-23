@@ -2,7 +2,7 @@
 
 A multiplayer-compatible fork of the Scenery Manager plugin for OpenRCT2. Designed for use on multiplayer servers, with full support for importing templates created with the original Scenery Manager plugin.
 
-#### Content
+## Contents
 
 - [Installation](#Installation)
 - [Usage](#Usage)
@@ -35,7 +35,7 @@ If you had a previous version of the Scenery Manager installed, make sure to del
 
 ## Usage
 
-#### User Interface
+### User Interface
 
 The preferred way to work with this plug-in is to use hotkeys. Nevertheless, everything can also be done via the Scenery Manager window.
 
@@ -43,7 +43,7 @@ To open the graphical user interface, click on "Scenery Manager Multiplayer Edit
 
 If you want to change any hotkey, go to the 'Controls and Interface' tab of OpenRCT2's 'Options' window.
 
-#### Copy and Paste
+### Copy and Paste
 
 - **Select Area** `[CTRL + A]`: Activates the selection tool. You can now select an area of the map with click and drag (click the left mouse button and hold it down, move the cursor, release the button).\
 If you want to edit an existing selection, press `[CTRL + SHIFT + A]` to enter a multi-selection mode.
@@ -60,7 +60,7 @@ If you want to edit an existing selection, press `[CTRL + SHIFT + A]` to enter a
 
 Note that any tool in OpenRCT2 can be cancelled by pressing the `[ESC]` key.
 
-###### Paste Options
+#### Paste Options
 
 Basic options:
 
@@ -92,22 +92,22 @@ Advanced options, mostly relevant for **Raw** place mode:
 
 - **Cut surface**: By default, the 'cut' operation copies surfaces, but does not remove them, which is the desired behaviour in the most cases, especially when working in safe mode. If this option is enabled, the 'cut' operation will also remove surfaces (if the corresponding filter is also enabled).
 
-###### Filter
+#### Filter
 
 Check or uncheck any of the checkboxes in the filter section of the window. It will affect both copy and paste actions.\
 You can also use the `[CTRL + 1]` through `[CTRL + 9]` hotkeys to toggle one filter respectively, or `[CTRL + 0]` to toggle all filters at once.
 
-###### Vertical Bounds
+#### Vertical Bounds
 
 Enable upper and lower bounds to restrict the paste operation to a vertical subsection. Choose **Intersected elements** to paste all elements that intersect the given bounds. Choose **Contained elements** to paste all elements that are completely contained in the given bounds.
 
-#### Clipboard
+### Clipboard
 
 Any copied or loaded template gets added to the clipboard. You can cycle through the entries of the clipboard with the `[Q]` (previous template) and `[E]` (next template) keys. You can delete the current template with the `[CTRL + D]` hotkey.
 
 The clipboard will not be persistent across sessions. If you want to keep your copied templates, save them to the library!
 
-#### Library
+### Library
 
 The library consists of an editable structure of folders and files (i.e. scenery templates), just like any other file system. Here you can store all your creations in a well-ordered manner.
 
@@ -119,11 +119,11 @@ Double-click any template to load it. Alternatively you can use the buttons in t
 
 - **Save Template** `[SHIFT + S]`: Opens a window to save the clipboard's current template to a new file or override an existing one.
 
-#### Scatter Tool
+### Scatter Tool
 
 The scatter tool is a brush that randomly places scenery from a previously selected palette. You can choose up to five different small scenery objects or large scenery objects and choose a density for each of them. Click on the **Pick** button to select an object from the map.
 
-###### Scatter Tool Options
+#### Scatter Tool Options
 
 - **Randomise rotation**: Picks a random rotation for each pasted scenery item.
 
@@ -133,13 +133,13 @@ The scatter tool is a brush that randomly places scenery from a previously selec
 
 Similar to scenery templates, scatter patterns can also be saved and loaded.
 
-#### Bench Brush
+### Bench Brush
 
 The bench brush works similar to the scatter tool. It can place footpath additions, such as benches, litter bins, lamps or queue TVs, in a predefined pattern onto existing footpaths.
 
 Choose a pattern size and up to that many footpath additions. The brush will place them in the specified pattern onto existing footpaths.
 
-#### Object Index
+### Object Index
 
 The object index contains every loaded scenery object and footpath object in the current scenario. You can refresh the index with the **Refresh index** button, though this is only really necessary if you changed the loaded objects during the game, which does not happen in normal scenario play.
 
@@ -147,15 +147,15 @@ Furthermore, the **Scan map** and **Scan area** buttons scan the map or a specif
 
 At the top, you can filter the list for type, usage and name or identifier.
 
-###### Object Details
+#### Object Details
 
 Clicking on any object in the object index will open another window that displays this object's information. Additionally, you can cycle though the object's instances with the **Jump** button, or go to the Replace tab (see **[Element Replacing](#Element-Replacing)** below) by clicking one of the **Go to: ...** buttons.
 
-#### Element Replacing
+### Element Replacing
 
 You can search for tile elements of a certain type and with certain properties and also replace them by something else (of the same type).
 
-###### Searching
+#### Searching
 
 In the first part of the tab, you can specify the type and the properties that you want to search for. Here, **< Any >** means that the elements will not be filtered for this property.
 
@@ -165,7 +165,7 @@ If you play on a CSO (Custom Scenery Object) map, then you can choose to filter 
 
 - **Search and Delete**: Searches all instances on the map that fit the specified properties and *deletes* them. There is no undo function, so be careful!
 
-###### Replacing
+#### Replacing
 
 In the second part of the tab, you can specify properties that should be replaced. The type of the replacing element must always match the type of the replaced object.
 
@@ -175,7 +175,7 @@ Again, if you play on a CSO map, footpaths are a little bit tricky. If you want 
 
 - **Search and Replace**: Searches all instances on the map that fit the specified properties of the 'Search for' section and *replaces* them with the specified values of the 'Replace with' section. There is no undo function, so be careful!
 
-###### Search Options
+#### Search Options
 
 - **Selected area only**: Restricts the search to the area that was selected on the map.
 
@@ -189,7 +189,7 @@ Again, if you play on a CSO map, footpaths are a little bit tricky. If you want 
 
 These settings are persistent through sessions.
 
-#### All Tools
+### All Tools
 
 - **Cursor mode**: This setting specifies which tile a tool has clicked on or is hovering over. In **Surface** mode, the tile is determined by the surface element that the cursor points to. So it ignores any scenery, track or entities that may lie between the cursor and the surface. In **Scenery** mode, the tile is determined by the element directly under the cursor, let it be scenery, track or surface.
 
@@ -205,7 +205,7 @@ These settings are persistent through sessions.
 
 - **Behaviour if element unavailable**: This only applies to loaded templates and scatter patterns, or if you are changing the loaded objects while a scenario is running. In these cases, it can happen that you want to place an element that is unavailable in the current scenario.
 
-#### Paste Tool
+### Paste Tool
 
 - **Disable height hotkeys**: Disables the height hotkeys (`[J]`, `[K]`, `[L]`) while the paste tool is inactive.
 
@@ -219,13 +219,13 @@ These settings are persistent through sessions.
 
   - **Sensitivity**: Adjusts the sensitivity of the rotation.
 
-#### Area Selection Tool
+### Area Selection Tool
 
 - **Keep selection**: If enabled, it keeps the area selection when the tool is finished. Otherwise, the area selection will be reset.
 
 - **Options window**: If enabled, all relevant options will be shown in a small window while the area selection tool is active.
 
-#### Brush Tool
+### Brush Tool
 
 - **Size**: The diameter or side length of the brush.
 
