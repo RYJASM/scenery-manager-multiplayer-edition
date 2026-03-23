@@ -2,6 +2,8 @@
 
 A multiplayer-compatible fork of the Scenery Manager plugin for OpenRCT2. Designed for use on multiplayer servers, with full support for importing templates created with the original Scenery Manager plugin.
 
+![Scenery Manager Multiplayer Edition](readme-screenshot.png)
+
 ## Contents
 
 - [Installation](#Installation)
