@@ -1,0 +1,36 @@
+/*****************************************************************************
+ * Copyright (c) 2026 RYJASM - Multiplayer Edition
+ * Copyright (c) 2020-2026 Sadret - Scenery Manager
+ *
+ * The OpenRCT2 plugin "Scenery Manager Multiplayer Edition" is licensed
+ * under the GNU General Public License version 3.
+ *****************************************************************************/
+
+import * as Clipboard from "../../core/Clipboard";
+import * as Storage from "../../persistence/Storage";
+import * as Events from "../../utils/Events";
+
+import GUI from "../../gui/GUI";
+import FileExplorer from "../widgets/FileExplorer";
+import TemplateView from "../widgets/TemplateView";
+
+export default new GUI.Tab({
+    image: {
+        frameBase: 5277,
+        frameCount: 7,
+        frameDuration: 4,
+    },
+}).add(
+    new FileExplorer(
+        new class extends TemplateView {
+            constructor() {
+                super();
+                Events.startup.register(() => this.watch(Storage.libraries.templates));
+            }
+
+            openFile(file: IFile<TemplateData>): void {
+                Clipboard.load(file.getContent());
+            }
+        }(),
+    ),
+);

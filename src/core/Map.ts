@@ -1,0 +1,323 @@
+/*****************************************************************************
+ * Copyright (c) 2026 RYJASM - Multiplayer Edition
+ * Copyright (c) 2020-2026 Sadret - Scenery Manager
+ *
+ * The OpenRCT2 plugin "Scenery Manager Multiplayer Edition" is licensed
+ * under the GNU General Public License version 3.
+ *****************************************************************************/
+
+import * as Footpath from "../template/Footpath";
+import * as SmallScenery from "../template/SmallScenery";
+import * as Arrays from "../utils/Arrays";
+import * as Coordinates from "../utils/Coordinates";
+import * as Objects from "../utils/Objects";
+import * as Context from "./Context";
+
+import Configuration from "../config/Configuration";
+import Template from "../template/Template";
+
+/*
+ * CONSTANTS
+ */
+
+const GROUND: SurfaceData = {
+    type: "surface",
+    baseHeight: 0,
+    baseZ: 0,
+    clearanceHeight: 0,
+    clearanceZ: 0,
+    occupiedQuadrants: 0,
+    isGhost: false,
+    isHidden: false,
+    slope: 0,
+    surfaceQualifier: "rct2.terrain_surface.grass",
+    edgeQualifier: "rct2.terrain_edge.rock",
+    waterHeight: 0,
+    grassLength: 1,
+    ownership: 0,
+    parkFences: 0,
+};
+
+/*
+ * TILE ORDERING
+ */
+
+function sortTilesRadial(tiles: TileData[]): TileData[] {
+    const xs = tiles.map(t => t.x);
+    const ys = tiles.map(t => t.y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    return tiles.slice().sort((a, b) => {
+        const da = (a.x - cx) ** 2 + (a.y - cy) ** 2;
+        const db = (b.x - cx) ** 2 + (b.y - cy) ** 2;
+        return da - db;
+    });
+}
+
+function sortTilesRandom(tiles: TileData[]): TileData[] {
+    const arr = tiles.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function sortTilesSpiral(tiles: TileData[]): TileData[] {
+    const xs = tiles.map(t => t.x);
+    const ys = tiles.map(t => t.y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    return tiles.slice().sort((a, b) => {
+        const shellA = Math.max(Math.abs(a.x - cx), Math.abs(a.y - cy));
+        const shellB = Math.max(Math.abs(b.x - cx), Math.abs(b.y - cy));
+        if (shellA !== shellB) return shellB - shellA;
+        return Math.atan2(a.x - cx, -(a.y - cy)) - Math.atan2(b.x - cx, -(b.y - cy));
+    });
+}
+
+function applyOrder(tiles: TileData[]): TileData[] {
+    const order = Configuration.paste.placementOrder.getValue();
+    if (order === "radial") return sortTilesRadial(tiles);
+    if (order === "random") return sortTilesRandom(tiles);
+    if (order === "spiral") return sortTilesSpiral(tiles);
+    return tiles;
+}
+
+/*
+ * READ / PLACE / REMOVE
+ */
+
+export function read(
+    tile: Tile,
+): TileElement[] {
+    return tile.elements.map(element => Template.copy(element));
+}
+
+export function place(
+    templateData: TileData[],
+    mode: PlaceMode,
+    isGhost: boolean,
+    filter: TypeFilter = () => true,
+    appendToEnd: boolean = false,
+    mergeSurface: boolean = false,
+): void {
+    const orderedData = applyOrder(templateData);
+    if (mode === "safe") {
+        // TODO: ensure order in async case for all types
+        const flags = isGhost ? 72 : 0;
+        // walls
+        if (filter("wall"))
+            orderedData.forEach(tileData =>
+                tileData.elements.forEach(element => {
+                    if (element.type === "wall")
+                        Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+                })
+            );
+        // paths
+        if (filter("footpath") || filter("footpath_addition"))
+            orderedData.forEach(tileData =>
+                tileData.elements.forEach(element => {
+                    if (element.type === "footpath") {
+                        if (filter("footpath")) {
+                            const pathActions = Template.getPlaceActionData(tileData, element, flags);
+                            if (pathActions.length > 0)
+                                pathActions.forEach(
+                                    data => Context.queryExecuteActionCallback(data, _ => {
+                                        if (element.additionQualifier !== null && filter("footpath_addition"))
+                                            Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                                    })
+                                );
+                            else if (element.additionQualifier !== null && filter("footpath_addition"))
+                                // No path to place (addition-only data): place the addition directly
+                                Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                        } else if (element.additionQualifier !== null && filter("footpath_addition"))
+                            Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                    }
+                })
+            );
+        // remaining
+        orderedData.forEach(tileData =>
+            tileData.elements.forEach(element => {
+                if (element.type !== "wall" && element.type !== "footpath" && filter(element.type))
+                    Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+            })
+        );
+    } else
+        orderedData.forEach(tileData => {
+            // Record synchronously before async raw placement so finalizeRecording() captures them
+            if (!isGhost)
+                tileData.elements.forEach(elementData => {
+                    if (elementData.type !== "surface" && filter(elementData.type))
+                        Template.getPlaceActionData(tileData, elementData, 0).forEach(
+                            data => Context.recordPlacement(data as PlaceActionData),
+                        );
+                });
+            Context.queueRawPlacement(() => {
+            const tile = getTile(tileData);
+            tileData.elements.forEach(elementData => {
+                if (tile.numElements === 0)
+                    return;
+                if (elementData.type === "footpath") {
+                    if ((elementData.qualifier !== null || elementData.surfaceQualifier !== null) && filter("footpath")) {
+                        if (Footpath.isAvailable(elementData, true, false)) {
+                            const element = insertElement(tile, elementData, appendToEnd) as FootpathElement;
+                            Template.copyBase(elementData, element);
+                            Footpath.copyTo(elementData, element, true, filter("footpath_addition"));
+                            element.isGhost = isGhost;
+                            if (filter("footpath_addition"))
+                                element.isAdditionGhost = isGhost;
+                        }
+                    } else if (elementData.additionQualifier !== null && filter("footpath_addition")) {
+                        // footpath addition only
+                        if (Footpath.isAvailable(elementData, false, true)) {
+                            const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
+                                element.type === "footpath" && element.baseHeight === elementData.baseHeight && element.addition === null
+                            ));
+                            if (element !== null) {
+                                Footpath.copyTo(elementData, element, false, true);
+                                element.isAdditionGhost = isGhost;
+                            }
+                        }
+                    }
+                } else if (elementData.type === "surface") {
+                    if (filter("surface") && Template.isAvailable(elementData)) {
+                        if (!mergeSurface && !isGhost)
+                            // removes all surface elements but ground element
+                            read(tile).forEach(element => element.type === "surface" && removeElement(tile, element));
+                        const element = insertElement(tile, elementData, appendToEnd) as SurfaceElement;
+                        Template.copyTo(elementData, element);
+                        element.isGhost = isGhost;
+
+                        const surface = getSurface(tile) as SurfaceElement;
+                        element.ownership = surface.ownership;
+                        element.parkFences = surface.parkFences;
+                        if (surface.baseHeight === 0)
+                            // surface is ground
+                            tile.removeElement(0);
+                    }
+                } else if (filter(elementData.type) && Template.isAvailable(elementData)) {
+                    const element = insertElement(tile, elementData, appendToEnd);
+                    Template.copyTo(elementData, element);
+                    element.isGhost = isGhost;
+                }
+            });
+            }, isGhost);
+        });
+}
+
+function insertElement(tile: Tile, elementData: ElementData, appendToEnd: boolean): TileElement {
+    let idx = 0;
+    if (appendToEnd)
+        idx = tile.numElements;
+    else
+        while (idx < tile.numElements && tile.getElement(idx).baseHeight <= elementData.baseHeight)
+            idx++;
+    return tile.insertElement(idx);
+}
+
+export function remove(
+    tile: Tile,
+    element: TileElement,
+    mode: PlaceMode,
+    additionOnly: boolean = false,
+    callback?: (result: GameActionResult) => void,
+): void {
+    if (mode === "safe")
+        if (element.type === "footpath" && additionOnly)
+            Footpath.getRemoveActionData(
+                Coordinates.toWorldCoords(tile),
+                <FootpathData>Template.copyFrom(element),
+                element.isAdditionGhost ? 72 : 0,
+                true,
+            ).forEach(
+                data => Context.queryExecuteActionCallback(data, callback)
+            );
+        else
+            // workaround to handle objects that are loaded twice: use the correct index
+            (element.type === "small_scenery"
+                ? SmallScenery.getRemoveActionData(
+                    Coordinates.toWorldCoords(tile),
+                    element,
+                    element.isGhost ? 72 : 0,
+                ) : Template.getRemoveActionData(
+                    tile,
+                    Template.copyFrom(element),
+                    element.isGhost ? 72 : 0,
+                )).forEach(
+                    data => Context.queryExecuteActionCallback(data, callback)
+                );
+    else {
+        removeElement(tile, element, additionOnly);
+        callback && callback({ error: 0 });
+    }
+}
+
+function removeElement(
+    tile: Tile,
+    element: TileElement,
+    additionOnly: boolean = false,
+): void {
+    for (let idx = 0; idx < tile.numElements; idx++)
+        if (Objects.equals(element, tile.getElement(idx)))
+            return removeIndex(tile, idx, additionOnly);
+}
+
+function removeIndex(
+    tile: Tile,
+    idx: number,
+    additionOnly: boolean,
+): void {
+    const element = tile.getElement(idx);
+    if (element.type === "surface") {
+        if (tile.elements.reduce((acc, element) => element.type === "surface" ? acc + 1 : acc, 0) === 1) {
+            // insert new element first, avoid having zero elements
+            const ground = tile.insertElement(0) as SurfaceElement;
+            Template.copyTo(GROUND, ground);
+            ground.ownership = element.ownership;
+            ground.parkFences = element.parkFences;
+            idx++;
+        }
+    } else if (tile.numElements === 1) {
+        // somehow this is the last one and there is no surface
+        // this should never happen in normal use
+        const ground = tile.insertElement(0) as SurfaceElement;
+        Template.copyTo(GROUND, ground);
+        idx++;
+    } else if (element.type === "footpath" && additionOnly) {
+        element.addition = null;
+        return;
+    }
+    tile.removeElement(idx);
+}
+
+/*
+ * UTILITY METHODS
+ */
+
+export function getTile(coords: CoordsXY): Tile {
+    return map.getTile(coords.x, coords.y);
+}
+
+export function getSurface(tile: Tile): SurfaceElement | null {
+    for (let element of tile.elements)
+        if (element.type === "surface")
+            return element;
+    return null;
+}
+
+export function getSurfaceHeight(tile: Tile): number {
+    const surface = getSurface(tile);
+    return surface === null ? 0 : surface.baseHeight;
+}
+
+export function isLocationOwned(tile: Tile, baseHeight: number): boolean {
+    const surface = getSurface(tile);
+    if (!surface)
+        return false;
+    if (surface.hasOwnership)
+        return true;
+    if (surface.hasConstructionRights)
+        return baseHeight < surface.baseHeight || baseHeight >= surface.baseHeight + 3;
+    return false;
+}
