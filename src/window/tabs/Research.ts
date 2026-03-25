@@ -16,7 +16,7 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version:  2.0.9-1.5.1", }),
+    new GUI.Label({ text: "Version:  2.0.9-1.5.2", }),
     new GUI.GroupBox({ text: "Multiplayer Edition features" }).add(
         new GUI.Label({ text: "- Multiplayer support" }),
         new GUI.Label({ text: "- Server-safe item placement and removal" }),

@@ -19,7 +19,7 @@ import MainWindow from "./window/MainWindow";
 
 registerPlugin({
     name: "scenery-manager-multiplayer-edition",
-    version: "2.0.9-1.5.0",
+    version: "2.0.9-1.5.2",
     authors: ["Sadret", "RYJASM"],
     type: "local",
     licence: "GPL-3.0",

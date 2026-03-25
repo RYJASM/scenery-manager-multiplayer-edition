@@ -564,6 +564,11 @@ export function init(): void {
             }
         }
         if (e.isClientOnly) return;
+        // Belt-and-suspenders: also check raw flags for ghost (1<<6=64) and noSpend
+        // (1<<5=32) in case isClientOnly is not reliably set by the current API version
+        // (e.g. ride-design preview window fires noSpend scenery actions that leak through).
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (((e.args as any).flags ?? 0) & (64 | 32)) return;
         if (!isLocalPlayerAction(e)) return;
         if (!!!trackedRemoveActions[e.action]) return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -596,6 +601,11 @@ export function init(): void {
         // Skip client-only actions: ghost (hover preview, 1<<6) and noSpend (ride preview
         // windows, 1<<5). Both set isClientOnly=true via GameAction::GetActionFlags().
         if (e.isClientOnly) return;
+        // Belt-and-suspenders: also check raw flags for ghost (1<<6=64) and noSpend
+        // (1<<5=32) in case isClientOnly is not reliably set by the current API version
+        // (e.g. ride-design preview window fires noSpend scenery actions that leak through).
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (((e.args as any).flags ?? 0) & (64 | 32)) return;
         // Only track actions performed by the local player
         if (!isLocalPlayerAction(e)) return;
 
