@@ -6,6 +6,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+
 import File from "./File";
 
 const namespace = "scenery-manager-multiplayer-edition";

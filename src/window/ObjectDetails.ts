@@ -1,9 +1,11 @@
 /*****************************************************************************
  * Copyright (c) 2020-2026 Sadret
+ * Copyright (c) 2026 RYJASM - Multiplayer Edition
  *
  * The OpenRCT2 plugin "Scenery Manager Multiplayer Edition" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
+
 
 import * as Strings from "../utils/Strings";
 import * as Replace from "./tabs/Replace";

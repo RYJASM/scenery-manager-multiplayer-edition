@@ -6,6 +6,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+
 interface IFile<T> {
     getPath(): string;
     getName(): string;

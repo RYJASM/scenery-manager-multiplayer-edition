@@ -6,6 +6,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+
 import * as Clipboard from "./core/Clipboard";
 import * as Context from "./core/Context";
 import * as Arrays from "./utils/Arrays";

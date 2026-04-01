@@ -6,6 +6,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+
 export default class File<T> implements IFile<T> {
     private readonly fs: IFileSystem<T>;
     private readonly path: string;
