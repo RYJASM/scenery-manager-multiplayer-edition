@@ -17,7 +17,7 @@ export default new GUI.Tab({
     margin: GUI.Margin.uniform(8),
 }).add(
     new GUI.Label({ text: "Scenery Manager Multiplayer Edition", }),
-    new GUI.Label({ text: "Version:  2.0.9-1.7.1", }),
+    new GUI.Label({ text: "Version:  2.0.9-1.7.2", }),
     new GUI.GroupBox({ text: "About" }).add(
         new GUI.Label({ text: "A fork of Scenery Manager with multiplayer support." }),
         new GUI.Label({ text: "Copy, paste, and manage scenery templates in" }),
