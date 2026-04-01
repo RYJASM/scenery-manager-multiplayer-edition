@@ -17,7 +17,7 @@ A multiplayer-compatible fork of the Scenery Manager plugin for OpenRCT2. Design
 - No Duplicates filter: skips fully overlapped duplicate objects in a set when copying or pasting
 - Skip Existing: skips over existimg items on the map that would be cause duplicates when pasting
 - Progress meter/status when pasting/undoing/redoing
-- Undo/redo supports native scenery, paths, and bulldozer tools. Just press ctrl+z or ctrl+shift+z to undo or redo even when the plugin window is not open.
+- Undo/redo supports native scenery, paths, and bulldozer tools. Just press ctrl+z or ctrl+y to undo or redo even when the plugin window is not open.
 
 ## Installation
 
