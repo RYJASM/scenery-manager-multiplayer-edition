@@ -53,6 +53,10 @@ If you want to edit an existing selection, press `[CTRL + SHIFT + A]` to enter a
 
 - **Save Template** `[SHIFT + S]`: Opens a dialog where you can permanently save the current template from the clipboard to the template library.
 
+- **Undo** `[CTRL + Z]`: Undoes the most recent paste, cut, or native tool action.
+
+- **Redo** `[CTRL + Y]`: Reapplies the most recently undone action.
+
 Note that any tool in OpenRCT2 can be cancelled by pressing the `[ESC]` key.
 
 #### Paste Options
@@ -65,19 +69,23 @@ Basic options:
 
 - **Height offset**: By default, templates are pasted at the surface's height. This option adds a vertical offset to the template. Press `[J]` to decrease, `[K]` to reset and `[L]` to increase the offset.
 
+- **X/Y half tile offset**: Offsets all small scenery elements in the selection by half a tile unit in the X and/or Y direction. Useful for placing small scenery between grid positions.
+
+Placement options:
+
+- **Placement delay**: See **[Settings](#Settings)**.
+
+- **Skip existing**: When enabled, tiles that already have a matching element at the target position are skipped during paste. Useful for filling in gaps without overwriting existing scenery.
+
+- **Placement order**: Controls the visual order in which elements are placed tile-by-tile. Combined with the placement delay, this determines how the scenery animates onto the map as it is being placed. See **[Placement Order](#Placement-Order)** below.
+
 Options shared with other tools:
 
 - **Cursor mode**: See **[Settings](#Settings)**.
 
 - **Place mode**: See **[Settings](#Settings)**.
 
-- **Placement order**: Controls the visual order in which elements are placed tile-by-tile. Combined with the placement delay, this determines how the scenery animates onto the map as it is being placed. See **[Placement Order](#Placement-Order)** below.
-
-- **X/Y half tile offset**: Offsets all small scenery elements in the selection by half a tile unit in the X and/or Y direction. Useful for placing small scenery between grid positions.
-
 - **Show ghost**: See **[Settings](#Settings)**.
-
-- **Undo** `[CTRL + Z]`: Undoes the most recent paste or cut operation. Only placement actions are tracked; up to 20 recent operations can be undone.
 
 Advanced options, mostly relevant for **Raw** place mode:
 
@@ -114,14 +122,22 @@ Enable upper and lower bounds to restrict the paste operation to a vertical subs
 
 ### Action History
 
-The Action History window/tab tracks every paste and cut operation and allows you to undo or redo them individually. Open it by clicking the **History** button in the Copy/Paste tab.
+The **Action History** tab tracks every paste, cut, native scenery tool, footpath tool, and bulldozer tool action, and allows you to undo or redo them individually. Switch to the Action History tab (clock icon) in the Scenery Manager window.
 
-The list displays all recorded actions newest-first, each showing whether it can be undone or redone, a description of the action, and a repeat count for batched operations. Click any entry to undo or redo it. The window updates live as actions are performed.
+The tab includes the following controls:
 
 - **Undo** `[CTRL + Z]`: Undoes the most recent applied action.
 - **Redo** `[CTRL + Y]`: Reapplies the most recently undone action.
+- **Pause/Resume**: Pauses or resumes an operation currently in progress.
+- **Cancel**: Cancels the current operation mid-execution.
 
-Up to 50 recent operations are tracked per session. 
+A progress status line shows the current operation and its progress when an action is in flight.
+
+The list displays all recorded actions newest-first, each showing its current status (Undo/Redo/Pasting.../Undoing.../Paused), a description, and a repeat count for batched operations. Click any entry to undo or redo it directly. The list updates live as actions are performed.
+
+Click **Pop Out Window** to open the history as a detached floating window instead. The floating window can also be opened via the **History** button in the Copy/Paste tab.
+
+Up to 50 recent operations are tracked per session.
 
 ### Clipboard
 
