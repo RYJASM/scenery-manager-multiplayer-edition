@@ -6,6 +6,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "../core/Context";
 import * as Map from "../core/Map";
 import * as UI from "../core/UI";
 import * as Storage from "../persistence/Storage";
@@ -26,17 +27,9 @@ import TemplateView from "../window/widgets/TemplateView";
 import ObjectIndex from "./ObjectIndex";
 
 export const settings = {
-    filter: {
-        banner: new BooleanProperty(true),
-        entrance: new BooleanProperty(true),
-        footpath: new BooleanProperty(true),
-        footpath_addition: new BooleanProperty(true),
-        large_scenery: new BooleanProperty(true),
-        small_scenery: new BooleanProperty(true),
-        surface: new BooleanProperty(true),
-        track: new BooleanProperty(true),
-        wall: new BooleanProperty(true),
-    } as { [key: string]: BooleanProperty },
+    filter: Configuration.clipboard.filter,
+    noDuplicates: Configuration.clipboard.noDuplicates,
+    skipExisting: new BooleanProperty(false),
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
     height: new class extends NumberProperty {
@@ -66,6 +59,57 @@ Configuration.paste.smallSteps.bind(enabled => !enabled && settings.height.setVa
 export const getStepSize = () => Configuration.paste.smallSteps.getValue() ? 1 : 2;
 
 const filter: TypeFilter = type => settings.filter[type].getValue();
+
+function dedupKey(type: string, baseZ: number, direction: number, quadrant: number, sequence: number, qualifier?: string): string {
+    let dir = direction;
+    if (type === "small_scenery" && qualifier !== undefined) {
+        const flags = ObjectIndex.getSmallSceneryFlags(qualifier);
+        if (flags !== null && !(flags & (1 << 3)))
+            dir = 0; // not rotatable (tree/bush) — ignore direction
+    }
+    return type + "|" + baseZ + "|" + dir + "|" + quadrant + "|" + sequence;
+}
+
+function deduplicateTiles(tiles: TileData[]): TileData[] {
+    return tiles.map(tile => {
+        const seen = {} as { [key: string]: true };
+        const elements = tile.elements.filter(element => {
+            const e = element as any;
+            const key = dedupKey(
+                element.type,
+                element.baseZ,
+                e.direction ?? 0,
+                e.quadrant ?? 0,
+                e.sequence ?? 0,
+                e.qualifier,
+            );
+            if (seen[key]) return false;
+            seen[key] = true;
+            return true;
+        });
+        return { x: tile.x, y: tile.y, elements: elements };
+    });
+}
+
+function filterExistingOnMap(tiles: TileData[]): TileData[] {
+    return tiles.map(tile => {
+        const mapTile = Map.getTile(tile);
+        const existing = {} as { [key: string]: true };
+        Map.read(mapTile).forEach(element => {
+            const e = element as any;
+            const qualifier = element.type === "small_scenery"
+                ? ObjectIndex.getQualifier("small_scenery", e.object) ?? undefined
+                : undefined;
+            existing[dedupKey(element.type, element.baseZ, e.direction ?? 0, e.quadrant ?? 0, e.sequence ?? 0, qualifier)] = true;
+        });
+        const elements = tile.elements.filter(element => {
+            const e = element as any;
+            const key = dedupKey(element.type, element.baseZ, e.direction ?? 0, e.quadrant ?? 0, e.sequence ?? 0, e.qualifier);
+            return !existing[key];
+        });
+        return { x: tile.x, y: tile.y, elements };
+    });
+}
 
 // Quadrant local centres within a 32-unit tile (world coords).
 // Derived from rotate (x'=y,y'=-x → q+=1) and mirror (y-flip → q^=1):
@@ -179,7 +223,10 @@ const builder = new class extends Builder {
             ui.showError("Can't paste template...", "Clipboard is empty!");
             return undefined;
         }
-        return this.transform(template, coords, offset).data.tiles;
+        let tiles = this.transform(template, coords, offset).data.tiles;
+        if (settings.noDuplicates.getValue()) tiles = deduplicateTiles(tiles);
+        if (settings.skipExisting.getValue()) tiles = filterExistingOnMap(tiles);
+        return tiles;
     }
 
     public onUp(e: ToolEventArgs): void {
@@ -260,12 +307,27 @@ export function getTemplate(): Template | undefined {
     return templates[cursor];
 }
 
+type TemplateObserver = (hasTemplate: boolean) => void;
+const templateObservers: TemplateObserver[] = [];
+
+export function bindTemplate(observer: TemplateObserver): void {
+    templateObservers.push(observer);
+    observer(getTemplate() !== undefined);
+}
+
+function notifyTemplateChange(): void {
+    const has = getTemplate() !== undefined;
+    for (let i = 0; i < templateObservers.length; i++)
+        templateObservers[i](has);
+}
+
 function addTemplate(template: Template, name?: string): void {
     settings.rotation.setValue(0);
     settings.mirrored.setValue(false);
     cursor = templates.length;
     templates.push(template);
     templateNames.push(name);
+    notifyTemplateChange();
     builder.build(); // rebuild if already active
     paste(); // paste if not active
 }
@@ -343,10 +405,22 @@ export function copy(cut: boolean = false): void {
 
     const placeMode = Configuration.tools.placeMode.getValue();
     const cutSurface = Configuration.cut.cutSurface.getValue();
+    const dedup = settings.noDuplicates.getValue();
+    const preCutId = cut ? Context.getNextEntryId() : 0;
     const data = new MapIterator(selection).map(coords => {
         const tile = Map.getTile(coords);
         const elements = [] as ElementData[];
+        const seen = dedup ? {} as { [key: string]: true } : undefined;
         Map.read(tile).forEach(element => {
+            if (seen !== undefined) {
+                const e = element as any;
+                const qualifier = element.type === "small_scenery"
+                    ? ObjectIndex.getQualifier("small_scenery", e.object)
+                    : undefined;
+                const key = dedupKey(element.type, element.baseZ, e.direction ?? 0, e.quadrant ?? 0, e.sequence ?? 0, qualifier ?? undefined);
+                if (seen[key]) return;
+                seen[key] = true;
+            }
             if (element.type === "footpath") {
                 if (filter("footpath") || filter("footpath_addition") && element.addition !== null) {
                     const data = {} as FootpathData;
@@ -378,9 +452,25 @@ export function copy(cut: boolean = false): void {
         y: -center.y,
         z: -heightOffset,
     }));
+    if (cut) Context.recordCutHistory(data, preCutId);
 }
 
+let largePastePending = false;
+
 export function paste(): void {
+    const template = getTemplate();
+    if (template !== undefined) {
+        const count = template.data.tiles.reduce((acc, tile) => acc + tile.elements.length, 0);
+        if (count > 500 && !largePastePending) {
+            largePastePending = true;
+            ui.showError(
+                "Large paste (" + count + " items)",
+                "Click Paste again to confirm.",
+            );
+            return;
+        }
+    }
+    largePastePending = false;
     ObjectIndex.reload();
     builder.activate();
 }
@@ -407,6 +497,7 @@ export function deleteTemplate(): void {
         cursor--;
     if (templates.length === 0) {
         cursor = undefined;
+        notifyTemplateChange();
         return builder.cancel();
     }
     builder.build();

@@ -9,11 +9,15 @@ A multiplayer-compatible fork of the Scenery Manager plugin for OpenRCT2. Design
 - Multiplayer support with server-safe item placement and removal
 - Custom placement delay when pasting to stay within server rate limits
 - Placement order patterns (Default, Radial, Spiral, Random) for visual animations
-- Action history window with full undo/redo support
+- Action history window with full undo/redo support (now features pausing/resuming/cancelling actions)
 - X/Y half-tile offset when pasting quarter-tile objects
 - Loading of objects from saved templates
 - Import saved templates from the original Scenery Manager plugin
 - Fixed colors on picked items in the find and replace tool
+- No Duplicates filter: skips fully overlapped duplicate objects in a set when copying or pasting
+- Skip Existing: skips over existimg items on the map that would be cause duplicates when pasting
+- Progress meter/status when pasting/undoing/redoing
+- Undo/redo supports native scenery, paths, and bulldozer tools. Just press ctrl+z or ctrl+shift+z to undo or redo even when the plugin window is not open.
 
 ## Installation
 
@@ -102,20 +106,22 @@ The placement order controls the sequence in which tiles are placed when pasting
 Check or uncheck any of the checkboxes in the filter section of the window. It will affect both copy and paste actions.\
 You can also use the `[CTRL + 1]` through `[CTRL + 9]` hotkeys to toggle one filter respectively, or `[CTRL + 0]` to toggle all filters at once.
 
+- **No duplicates**: When enabled, fully overlapped duplicate objects — multiple objects of the same type at the exact same position, height, and rotation — are reduced to a single instance. Applies to both copy and paste. Useful for cleaning up areas that were built with clearance checks disabled. Non-rotatable objects such as trees and bushes are treated as duplicates regardless of their stored rotation value.
+
 #### Vertical Bounds
 
 Enable upper and lower bounds to restrict the paste operation to a vertical subsection. Choose **Intersected elements** to paste all elements that intersect the given bounds. Choose **Contained elements** to paste all elements that are completely contained in the given bounds.
 
 ### Action History
 
-The Action History window tracks every paste and cut operation and allows you to undo or redo them individually. Open it by clicking the **History** button in the Copy/Paste tab.
+The Action History window/tab tracks every paste and cut operation and allows you to undo or redo them individually. Open it by clicking the **History** button in the Copy/Paste tab.
 
 The list displays all recorded actions newest-first, each showing whether it can be undone or redone, a description of the action, and a repeat count for batched operations. Click any entry to undo or redo it. The window updates live as actions are performed.
 
 - **Undo** `[CTRL + Z]`: Undoes the most recent applied action.
 - **Redo** `[CTRL + Y]`: Reapplies the most recently undone action.
 
-Up to 20 recent operations are tracked per session.
+Up to 50 recent operations are tracked per session. 
 
 ### Clipboard
 

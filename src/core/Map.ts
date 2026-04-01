@@ -145,13 +145,16 @@ export function place(
         );
     } else
         orderedData.forEach(tileData => {
-            // Record synchronously before async raw placement so finalizeRecording() captures them
+            // Record synchronously before async raw placement so finalizeRecording() captures them.
+            // Count recorded actions to pass as elementCount for accurate progress tracking.
+            let elementCount = 0;
             if (!isGhost)
                 tileData.elements.forEach(elementData => {
-                    if (elementData.type !== "surface" && filter(elementData.type))
-                        Template.getPlaceActionData(tileData, elementData, 0).forEach(
-                            data => Context.recordPlacement(data as PlaceActionData),
-                        );
+                    if (elementData.type !== "surface" && filter(elementData.type)) {
+                        const actions = Template.getPlaceActionData(tileData, elementData, 0);
+                        actions.forEach(data => Context.recordPlacement(data as PlaceActionData));
+                        elementCount += actions.length;
+                    }
                 });
             Context.queueRawPlacement(() => {
             const tile = getTile(tileData);
@@ -202,7 +205,7 @@ export function place(
                     element.isGhost = isGhost;
                 }
             });
-            }, isGhost);
+            }, isGhost, elementCount);
         });
 }
 

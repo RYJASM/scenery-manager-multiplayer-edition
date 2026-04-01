@@ -57,6 +57,20 @@ const Configuration = {
     window: {
         showAdvancedCopyPasteSettings: new BooleanProperty(true),
     },
+    clipboard: {
+        filter: {
+            banner: new BooleanProperty(false),
+            entrance: new BooleanProperty(false),
+            footpath: new BooleanProperty(false),
+            footpath_addition: new BooleanProperty(false),
+            large_scenery: new BooleanProperty(true),
+            small_scenery: new BooleanProperty(true),
+            surface: new BooleanProperty(false),
+            track: new BooleanProperty(false),
+            wall: new BooleanProperty(true),
+        } as { [key: string]: BooleanProperty },
+        noDuplicates: new BooleanProperty(false),
+    },
 }
 export default Configuration;
 

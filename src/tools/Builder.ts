@@ -68,7 +68,7 @@ export default abstract class Builder extends Tool {
                     Map.read(tile).forEach(element => {
                         if (element.isGhost)
                             Map.remove(tile, element, this.placeMode, false);
-                        if (element.type === "footpath" && element.addition !== null && element.isAdditionGhost)
+                        else if (element.type === "footpath" && element.addition !== null && element.isAdditionGhost)
                             Map.remove(tile, element, this.placeMode, true);
                     });
                 },

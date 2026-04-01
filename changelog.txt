@@ -1,3 +1,19 @@
+2.0.9-1.7.2 (2026-04-01) - Multiplayer Edition
+------------------------------------------------------------------------
+- Feature: Added in-tab Action History with Undo/Redo, Pause/Resume, Cancel, and pop-out support.
+- Feature: Added queue progress/status display for paste, undo, and redo operations.
+- Feature: Added placement filter options for "No duplicates" and "Skip existing".
+- Feature: Added smarter tile placement order options (Default, Radial, Spiral, Random).
+- Feature: Added confirmation prompt for very large paste operations.
+- Feature: Added dedup-aware copy behavior for cleaner templates.
+- Improved: Undo/redo history model now tracks partial completion more reliably in multiplayer.
+- Improved: Better handling of native tool actions in history (including footpath batching and clear-scenery batching).
+- Improved: Increased tracked action history capacity to 50 operations.
+- Improved: Build output now includes timestamped release files and automatic copy to local plugin folder.
+- Fix: Improved suppression of plugin self-actions to avoid duplicate/native history noise in multiplayer.
+- Fix: Corrected ghost footpath-addition removal flow to avoid duplicate removal calls.
+- Fix: Updated and reorganized main window tabs and About metadata for Multiplayer Edition.
+
 2.0.9-1.5.1 (2026-03-23) - Multiplayer Edition
 ------------------------------------------------------------------------
 - Feature: Multiplayer support with server-safe item placement and removal.
